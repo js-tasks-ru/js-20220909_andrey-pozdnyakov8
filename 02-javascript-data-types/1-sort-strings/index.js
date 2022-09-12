@@ -21,15 +21,3 @@ export function sortStrings(arr, param) {
 
   return sortedArr;
 }
-
-// const data = [
-//   'Соска (пустышка) NUK 10729357',
-//   'ТВ тюнер D-COLOR  DC1301HD',
-//   'Детский велосипед Lexus Trike Racer Trike',
-//   'Соска (пустышка) Philips SCF182/12',
-//   'Powerbank аккумулятор Hiper SP20000'
-// ];
-// sortStrings(data, asc);
-// sortStrings(data, desc);
-
-// {"description":"should correctly sort strings for mixed \"en\" and \"ru\" locales","success":false,"suite":["javascript-data-types/sort-strings"],"time":4}
