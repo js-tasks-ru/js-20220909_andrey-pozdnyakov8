@@ -7,7 +7,7 @@
 export const omit = (obj, ...fields) => {
   const objEntries = Object.entries(obj);
 
-  const filteredArr = objEntries.filter(([item]) => !fields.flat().includes(item));
+  const filteredArr = objEntries.filter(([item]) => !fields.includes(item));
   const omitObj = Object.fromEntries(filteredArr);
 
   return omitObj;

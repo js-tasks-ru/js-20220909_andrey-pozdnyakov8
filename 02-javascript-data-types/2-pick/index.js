@@ -7,7 +7,7 @@
 export const pick = (obj, ...fields) => {
   const objEntries = Object.entries(obj);
 
-  const filteredArr = objEntries.filter(([item]) => fields.flat().includes(item));
+  const filteredArr = objEntries.filter(([item]) => fields.includes(item));
   const pickObj = Object.fromEntries(filteredArr);
   
   return pickObj;
