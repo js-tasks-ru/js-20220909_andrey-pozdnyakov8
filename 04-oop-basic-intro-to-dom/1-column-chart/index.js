@@ -94,7 +94,3 @@ export default class ColumnChart {
   }
 
 }
-
-// const orders = document.querySelector("#orders");
-// const sales = document.querySelector("#sales");
-// const customers = document.querySelector("#customers");
