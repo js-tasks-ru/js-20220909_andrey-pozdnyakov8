@@ -32,11 +32,7 @@ export default class NotificationMessage {
     const wrapper = document.createElement('div');
 
     wrapper.innerHTML = this.notificationTemplate;
-    // console.log(wrapper.innerHTML);
-    // console.log(wrapper.outerHTML);
-    this.element = wrapper.firstElementChild;
-    // NotificationMessage.element = wrapper.firstElementChild;
-    
+    this.element = wrapper.firstElementChild;   
   }
 
   remove() {

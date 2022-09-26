@@ -7,7 +7,6 @@ export default class SortableTable {
   }
 
   sort(fieldValue, orderValue) {
-    console.log(this.data);
     const sortOrder = orderValue === 'asc' ? 1 : -1;
 
     const sortedData = this.data.sort((a, b) => {
