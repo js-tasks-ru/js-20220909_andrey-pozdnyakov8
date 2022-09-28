@@ -1,4 +1,9 @@
 export default class NotificationMessage {
+  static activeNotification;
+
+  wrapper;
+  timer;
+
   constructor(message = "", { duration = 0, type = "" } = {}) {
     this.message = message;
     this.duration = duration;
@@ -21,11 +26,15 @@ export default class NotificationMessage {
     `;
   }
 
-  show() {
-    if (this.element) {this.remove();}
+  show(item = document.body) {
+    if (NotificationMessage.activeNotification) {
+      NotificationMessage.activeNotification.remove();
+    }
 
-    document.body.append(this.element);
-    setTimeout(() => this.remove(), this.duration);
+    item.append(this.element);
+    this.timer = setTimeout(() => this.remove(), this.duration);
+
+    NotificationMessage.activeNotification = this;
   }
 
   render() {
@@ -37,15 +46,17 @@ export default class NotificationMessage {
 
   remove() {
     if (this.element) {this.element.remove();}
-    clearTimeout(this.element.timeout);
+    clearTimeout(this.timer);
   }
 
   destroy() {
-    this.element.remove();
+    this.remove();
+    this.element = null;
+    NotificationMessage.activeNotification = null;
   }
 }
 
-const btn1 = document.querySelector("#btn1");
+// const btn1 = document.querySelector("#btn1");
 
 
 
