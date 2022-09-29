@@ -1,40 +1,59 @@
 class Tooltip {
+  static instance = null;
+
   constructor() {
-    this.render();
+    if (!Tooltip.instance) {
+      return Tooltip.instance = this;
+    } else {
+      return Tooltip.instance;
+    }
   }
 
-  initialize (item = document.body) {
-    item.append(this.element);
+  initialize() {
     this.initListeners();
   }
 
-  showTooltip(event) {
-    const target = event.target.closest('[data-element]');
-    this.render(event.target.dataset.tooltip);
+  showTooltip = (event) => {
+    const tooltipTarget = event.target.dataset.tooltip;
+
+    if (tooltipTarget) {
+      this.render(tooltipTarget);
+      document.body.addEventListener("pointermove", this.tooltipPosition);
+    }
+    
   }
-  
+
+  hideTooltip = () => {
+    this.remove();
+    this.element = null;
+    document.body.removeEventListener("pointermove", this.tooltipPosition);
+  }
+
+  tooltipPosition = (event) => {
+    const x = event.clientX;
+    const y = event.clientY;
+    const shift = 20;
+
+    this.element.style.top = y + shift + 'px';
+    this.element.style.left = x + shift + 'px';
+  }
+
+  render(tooltipTarget) {
+    this.element = document.createElement('div');
+    this.element.innerHTML = tooltipTarget;
+    this.element.classList.add("tooltip");
+    
+    document.body.append(this.element);
+  }
+
   initListeners() {
-    document.addEventListener('pointerover', this.showTooltip());
-    document.addEventListener('pointerout', this.showTooltip());
+    document.addEventListener('pointerover', this.showTooltip);
+    document.addEventListener('pointerout', this.hideTooltip);
   }
   
   removeListeners() {
-    document.removeEventListener('pointerout', this.showTooltip());
-    document.removeEventListener('pointerover', this.showTooltip());
-  }
-  
-  get tooltipTemplate() {
-    return `
-      <div class="tooltip">This is tooltip</div>
-    `;
-  }
-
-  render() {
-    const wrapper = document.createElement('div');
-    wrapper.innerHTML = null;
-    this.element = wrapper.firstElementChild;
-    
-
+    document.removeEventListener('pointerover', this.showTooltip);
+    document.removeEventListener('pointerout', this.hideTooltip);
   }
 
   remove() {
