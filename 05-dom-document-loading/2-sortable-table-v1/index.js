@@ -9,33 +9,16 @@ export default class SortableTable {
   }
 
   sort(fieldValue, orderValue) {
-    // const sortOrder = orderValue === 'asc' ? 1 : -1;
+    const sortOrder = orderValue === "asc" ? 1 : -1;
 
-    // const sortedData = this.data.sort((a, b) => {
-    //   if (typeof a[fieldValue] === 'number') {
-    //     return sortOrder * (a[fieldValue] - b[fieldValue]);
-    //   }
-
-    //   if (typeof a[fieldValue] === 'string') {
-    //     return sortOrder * a[fieldValue].localeCompare(b[fieldValue], 'ru', { caseFirst: 'upper' });
-    //   }
-    // });
-
-    let direction;
-    if (orderValue === "asc") {
-      direction = 1;
-    }
-    if (orderValue === "desc") {
-      direction = -1;
-    }
-
-    this.data.sort((a, b) => {
+    const sortedData = this.data.sort((a, b) => {
       if (typeof a[fieldValue] === "number") {
-        return direction * (a[fieldValue] - b[fieldValue]);
+        return sortOrder * (a[fieldValue] - b[fieldValue]);
       }
+
       if (typeof a[fieldValue] === "string") {
         return (
-          direction *
+          sortOrder *
           a[fieldValue].localeCompare(b[fieldValue], ["ru", "en"], {
             caseFirst: "upper",
           })
@@ -43,19 +26,45 @@ export default class SortableTable {
       }
     });
 
+    // let direction;
+    // if (orderValue === "asc") {
+    //   direction = 1;
+    // }
+    // if (orderValue === "desc") {
+    //   direction = -1;
+    // }
+
+    // this.data.sort((a, b) => {
+    //   if (typeof a[fieldValue] === "number") {
+    //     return direction * (a[fieldValue] - b[fieldValue]);
+    //   }
+    //   if (typeof a[fieldValue] === "string") {
+    //     return (
+    //       direction *
+    //       a[fieldValue].localeCompare(b[fieldValue], ["ru", "en"], {
+    //         caseFirst: "upper",
+    //       })
+    //     );
+    //   }
+    // });
+
     this.subElements.body.innerHTML = this.tableProducts;
     // this.element.innerHTML = this.sortableTableTemplate;
   }
 
   get tableHeader() {
-    return this.headerConfig.map((item) => {
-      return `
-        <div class="sortable-table__cell" data-id="${item.id}" data-sortable="${item.sortable}" data-order="asc">
+    return this.headerConfig
+      .map((item) => {
+        return `
+        <div class="sortable-table__cell" data-id="${item.id}" data-sortable="${
+          item.sortable
+        }" data-order="asc">
           <span>${item.title}</span>
-          ${item.sortable ? this.arrowToSort : ''} 
+          ${item.sortable ? this.arrowToSort : ""} 
         </div>
       `;
-    }).join('');
+      })
+      .join("");
   }
 
   get arrowToSort() {
@@ -66,23 +75,27 @@ export default class SortableTable {
     `;
   }
 
-  get tableProducts() {
-    return this.data.map((item) => {
-      return `
-        <a href="" class="sortable-table__row">
-          <div class="sortable-table__cell">
-            <img class="sortable-table-image" alt="Image" src="https://via.placeholder.com/32">
-          </div>
-          <div class="sortable-table__cell">${item.title}</div>
+  tableProductCells(item) {
+    return this.headerConfig
+      .map((data) => {
+        return data.template
+          ? data.template()
+          : `<div class="sortable-table__cell">${item[data.id]}</div>`;
+      })
+      .join("");
+  }
 
-          <div class="sortable-table__cell">${item.quantity}</div>
-          <div class="sortable-table__cell">${item.price}</div>
-          <div class="sortable-table__cell">${item.sales}</div>
+  get tableProducts() {
+    return this.data
+      .map((item) => {
+        return `
+        <a href="" class="sortable-table__row">
+          ${this.tableProductCells(item)}
         </a>
       `;
-    }).join('');
+      })
+      .join("");
   }
-  
 
   get sortableTableTemplate() {
     return `
@@ -128,19 +141,13 @@ export default class SortableTable {
     this.subElements = this.getSubElements();
   }
 
-  // render() {
-  //   const wrapper = document.createElement('div');
-
-  //   wrapper.innerHTML = this.sortableTableTemplate;
-  //   this.element = wrapper.firstElementChild;
-  // }
-
   remove() {
-    if (this.element) {this.element.remove();}
+    if (this.element) {
+      this.element.remove();
+    }
   }
 
   destroy() {
     this.element.remove();
   }
 }
-

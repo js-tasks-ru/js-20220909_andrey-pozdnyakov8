@@ -24,8 +24,8 @@ export default class SortableTable {
 
     const orderToggler = (order) => {
       const orders = {
-        asc: 'desc',
-        desc: 'asc'
+        asc: "desc",
+        desc: "asc",
       };
 
       const result = orders[order];
@@ -36,7 +36,7 @@ export default class SortableTable {
       const { id, order } = selectedColumn.dataset;
       const newOrder = orderToggler(order);
 
-      const arrow = selectedColumn.querySelector('.sortable-table__sort-arrow');
+      const arrow = selectedColumn.querySelector(".sortable-table__sort-arrow");
 
       selectedColumn.dataset.order = newOrder;
 
@@ -46,17 +46,10 @@ export default class SortableTable {
 
       this.sortData(id, newOrder);
     }
-  }
+  };
 
   sortData(fieldValue, orderValue) {
-    // let sortOrder;
-    // if (orderValue === "asc") {
-    //   sortOrder = 1;
-    // }
-    // if (orderValue === "desc") {
-    //   sortOrder = -1;
-    // }
-    const sortOrder = orderValue === 'asc' ? 1 : -1;
+    const sortOrder = orderValue === "asc" ? 1 : -1;
 
     const sortingField = this.element.querySelector(
       `[data-id='${fieldValue}']`
@@ -72,7 +65,7 @@ export default class SortableTable {
       if (typeof a[fieldValue] === "string") {
         return (
           sortOrder *
-          a[fieldValue].localeCompare(b[fieldValue], "ru", {
+          a[fieldValue].localeCompare(b[fieldValue], ["ru", "en"], {
             caseFirst: "upper",
           })
         );
