@@ -1,4 +1,6 @@
 export default class SortableTable {
+  subElements = {};
+
   constructor(headerConfig = [], data = []) {
     this.headerConfig = headerConfig;
     this.data = [...data];
@@ -7,19 +9,42 @@ export default class SortableTable {
   }
 
   sort(fieldValue, orderValue) {
-    const sortOrder = orderValue === 'asc' ? 1 : -1;
+    // const sortOrder = orderValue === 'asc' ? 1 : -1;
 
-    const sortedData = this.data.sort((a, b) => {
-      if (typeof a[fieldValue] === 'number') {
-        return sortOrder * (a[fieldValue] - b[fieldValue]);
+    // const sortedData = this.data.sort((a, b) => {
+    //   if (typeof a[fieldValue] === 'number') {
+    //     return sortOrder * (a[fieldValue] - b[fieldValue]);
+    //   }
+
+    //   if (typeof a[fieldValue] === 'string') {
+    //     return sortOrder * a[fieldValue].localeCompare(b[fieldValue], 'ru', { caseFirst: 'upper' });
+    //   }
+    // });
+
+    let direction;
+    if (orderValue === "asc") {
+      direction = 1;
+    }
+    if (orderValue === "desc") {
+      direction = -1;
+    }
+
+    this.data.sort((a, b) => {
+      if (typeof a[fieldValue] === "number") {
+        return direction * (a[fieldValue] - b[fieldValue]);
       }
-
-      if (typeof a[fieldValue] === 'string') {
-        return sortOrder * a[fieldValue].localeCompare(b[fieldValue], 'ru', { caseFirst: 'upper' });
+      if (typeof a[fieldValue] === "string") {
+        return (
+          direction *
+          a[fieldValue].localeCompare(b[fieldValue], ["ru", "en"], {
+            caseFirst: "upper",
+          })
+        );
       }
     });
 
-    this.element.innerHTML = this.sortableTableTemplate;
+    this.subElements.body.innerHTML = this.tableProducts;
+    // this.element.innerHTML = this.sortableTableTemplate;
   }
 
   get tableHeader() {
@@ -81,12 +106,34 @@ export default class SortableTable {
     `;
   }
 
+  getSubElements() {
+    const result = {};
+    const elements = this.element.querySelectorAll("[data-element]");
+
+    for (const subElement of elements) {
+      const name = subElement.dataset.element;
+
+      result[name] = subElement;
+    }
+
+    return result;
+  }
+
   render() {
-    const wrapper = document.createElement('div');
+    const wrapper = document.createElement("div");
 
     wrapper.innerHTML = this.sortableTableTemplate;
     this.element = wrapper.firstElementChild;
+
+    this.subElements = this.getSubElements();
   }
+
+  // render() {
+  //   const wrapper = document.createElement('div');
+
+  //   wrapper.innerHTML = this.sortableTableTemplate;
+  //   this.element = wrapper.firstElementChild;
+  // }
 
   remove() {
     if (this.element) {this.element.remove();}
