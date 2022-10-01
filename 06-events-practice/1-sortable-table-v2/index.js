@@ -98,19 +98,22 @@ export default class SortableTable {
     `;
   }
 
+  tableProductCells(item) {
+    return this.headerConfig
+      .map((data) => {
+        return data.template
+          ? data.template()
+          : `<div class="sortable-table__cell">${item[data.id]}</div>`;
+      })
+      .join("");
+  }
+
   get tableProducts() {
     return this.data
       .map((item) => {
         return `
         <a href="" class="sortable-table__row">
-          <div class="sortable-table__cell">
-            <img class="sortable-table-image" alt="Image" src="https://via.placeholder.com/32">
-          </div>
-          <div class="sortable-table__cell">${item.title}</div>
-
-          <div class="sortable-table__cell">${item.quantity}</div>
-          <div class="sortable-table__cell">${item.price}</div>
-          <div class="sortable-table__cell">${item.sales}</div>
+          ${this.tableProductCells(item)}
         </a>
       `;
       })
