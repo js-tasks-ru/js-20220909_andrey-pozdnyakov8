@@ -79,12 +79,12 @@ export default class SortableTable {
     this.subElements.body.innerHTML = this.tableProducts;
   }
 
-  async sortOnServer (id, order) {
-    const queryURL = `${BACKEND_URL}/${url}`;
+  async sortOnServer(id, order) {
+    const pathNameURL = `${BACKEND_URL}/${url}`;
 
     this.subElements.classList.add("sortable-table_loading");
 
-    await fetch(queryURL)
+    await fetch(pathNameURL)
       .then((response) => {
         return response.json();
       })
