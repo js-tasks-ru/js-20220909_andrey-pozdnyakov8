@@ -11,8 +11,8 @@ export default class ColumnChart {
   constructor({
     url = "",
     range = { 
-      from: Date.now(), 
-      to: Date.now()
+      from: new Date(), 
+      to: new Date()
     },
     label = "",
     link = "",
@@ -35,21 +35,21 @@ export default class ColumnChart {
 
     this.element.classList.add("column-chart_loading");
 
-    const data = await fetch(urlFromToParams.toString())
-      .then((response) => {
-        return response.json();
-      })
-      .catch(function(error) {
-        console.log(error);
-      });
+    try {
+      const response = await fetch(urlFromToParams.toString());
+      const data = await response.json();
 
-    this.dataValues = Object.values(data);
+      this.dataValues = Object.values(data);
+  
+      if (this.dataValues.length) {
+        this.element.classList.remove("column-chart_loading");
+      }
 
-    if (this.dataValues.length) {
-      this.element.classList.remove("column-chart_loading");
+      return data;
+      
+    } catch (error) {
+      console.log(error);
     }
-    
-    return data;
   }
 
   getHeadingValues() {
@@ -130,7 +130,7 @@ export default class ColumnChart {
     return result;
   }
 
-  render() {
+  async render() {
     const wrapper = document.createElement("div");
 
     wrapper.innerHTML = this.getChartTemplate();
@@ -138,11 +138,9 @@ export default class ColumnChart {
 
     this.subElements = this.getSubElements();
 
-    this.fetchData().then((data) => {
-      this.data = data;
-      this.subElements.body.innerHTML = this.getColumnProps();
-      this.subElements.header.innerHTML = this.getHeadingValues();
-    });
+    this.data = await this.fetchData();
+    this.subElements.body.innerHTML = this.getColumnProps();
+    this.subElements.header.innerHTML = this.getHeadingValues();
   }
 
   async update(dateFrom, dateTo) {
