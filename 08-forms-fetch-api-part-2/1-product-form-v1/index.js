@@ -1,4 +1,4 @@
-import escapeHtml from "./utils/escape-html.js";
+// import escapeHtml from "./utils/escape-html.js";
 // import fetchJson from "./utils/fetch-json.js";
 
 const IMGUR_CLIENT_ID = "28aaa2e823b03b1";
@@ -65,12 +65,63 @@ export default class ProductForm {
     }
   }
 
-  async createProduct() {
-
+  onSaveProductClick = (event) => {
+    const saveButton = event.target.closest('[name = "save"]');
+    if (saveButton) {
+      this.save();
+    }
   }
 
-  async updateProduct() {
+  initListeners() {
+    document.addEventListener("pointerdown", this.onSaveProductClick);
+  }
 
+  removeListeners() {
+    document.removeEventListener("pointerdown", this.onSaveProductClick);
+  }
+
+  async save() {
+    const productsURL = `${BACKEND_URL}/${PRODUCTS_URL}`;
+    console.log(this.productId);
+
+    try {
+      await fetch(productsURL.toString(), {
+        method: this.productId ? "PATCH" : "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(this.product),
+      });
+
+      const savedEvent = new CustomEvent("product-saved", { bubbles: true });
+      const updatedEvent = new CustomEvent("product-updated", { bubbles: true });
+      this.element.dispatchEvent(this.productId ? savedEvent : updatedEvent);
+
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  // async updateProduct() {
+  //   try {
+  //     const response = await fetch(fetchURL.toString());
+  //     const data = await response.json();
+  //     this.product = data[0];
+  //     console.log(this.product);
+  //     console.log(this.product.title);
+
+  //     return this.product;
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
+
+  get categoriesTemplate() {
+    return this.categories.map((category) => {
+      return category.subcategories.map((subcategory) => {
+        return `<option value="${category.id}-i-${subcategory.id}">${category.title} &gt; ${subcategory.title}</option>`;
+      }).join('');
+    }).join('');
   }
 
   get productFormTemplate() {
@@ -105,44 +156,7 @@ export default class ProductForm {
           <div class="form-group form-group__half_left">
             <label class="form-label">Категория</label>
             <select class="form-control" name="subcategory">
-              <option value="progulki-i-detskaya-komnata">Детские товары и игрушки &gt; Прогулки и детская комната</option>
-              <option value="kormlenie-i-gigiena">Детские товары и игрушки &gt; Кормление и гигиена</option>
-              <option value="igrushki-i-razvlecheniya">Детские товары и игрушки &gt; Игрушки и развлечения</option>
-              <option value="aktivniy-otdyh-i-ulitsa">Детские товары и игрушки &gt; Активный отдых и улица</option>
-              <option value="radioupravlyaemye-modeli">Детские товары и игрушки &gt; Радиоуправляемые модели</option>
-              <option value="shkolnye-tovary">Детские товары и игрушки &gt; Школьные товары</option>
-              <option value="noutbuki-i-aksessuary">Компьютерная техника &gt; Ноутбуки и аксессуары</option>
-              <option value="monitory">Компьютерная техника &gt; Мониторы</option>
-              <option value="komplektuyuschie">Компьютерная техника &gt; Комплектующие</option>
-              <option value="setevoe-oborudovanie">Компьютерная техника &gt; Сетевое оборудование</option>
-              <option value="vstraivaemaya-tehnika">Крупная бытовая техника &gt; Встраиваемая техника</option>
-              <option value="stiralnye-mashiny">Крупная бытовая техника &gt; Стиральные машины</option>
-              <option value="sushilnye-mashiny">Крупная бытовая техника &gt; Сушильные машины</option>
-              <option value="holodilniki">Крупная бытовая техника &gt; Холодильники</option>
-              <option value="morozilnye-kamery">Крупная бытовая техника &gt; Морозильные камеры</option>
-              <option value="vinnye-shkafy">Крупная бытовая техника &gt; Винные шкафы</option>
-              <option value="vytyazhki">Крупная бытовая техника &gt; Вытяжки</option>
-              <option value="plity">Крупная бытовая техника &gt; Плиты</option>
-              <option value="posudomoechnye-mashiny">Крупная бытовая техника &gt; Посудомоечные машины</option>
-              <option value="melkaya-bytovaya-tehnika">Крупная бытовая техника &gt; Мелкая бытовая техника</option>
-              <option value="mikrovolnovye-pechi">Крупная бытовая техника &gt; Микроволновые печи</option>
-              <option value="elektroduhovki">Крупная бытовая техника &gt; Электродуховки</option>
-              <option value="uborochnye-mashiny">Крупная бытовая техника &gt; Уборочные машины</option>
-              <option value="paroochistiteli">Крупная бытовая техника &gt; Пароочистители</option>
-              <option value="kulery-i-purifayery">Крупная бытовая техника &gt; Кулеры и пурифайеры</option>
-              <option value="kuhnya">Мелкая бытовая техника &gt; Кухня</option>
-              <option value="bytovye-pribory-dlya-doma">Мелкая бытовая техника &gt; Бытовые приборы для дома</option>
-              <option value="krasota-i-gigiena">Мелкая бытовая техника &gt; Красота и гигиена</option>
-              <option value="lcd-televizory">ТВ и видеотехника &gt; LCD телевизоры</option>
-              <option value="podstavki-i-krepleniya">ТВ и видеотехника &gt; Подставки и крепления</option>
-              <option value="mediapleery">ТВ и видеотехника &gt; Медиаплееры</option>
-              <option value="tv-tyunery">ТВ и видеотехника &gt; ТВ тюнеры</option>
-              <option value="tv-antenny">ТВ и видеотехника &gt; ТВ антенны</option>
-              <option value="3d-ochki">ТВ и видеотехника &gt; 3D очки</option>
-              <option value="ochki-virtualnoy-realnosti">ТВ и видеотехника &gt; Очки виртуальной реальности</option>
-              <option value="proektsionnoe-oborudovanie">ТВ и видеотехника &gt; Проекционное оборудование</option>
-              <option value="videokamery-i-aksessuary">ТВ и видеотехника &gt; Видеокамеры и аксессуары</option>
-              <option value="dvd/blu-ray-pleery">ТВ и видеотехника &gt; DVD/Blu-ray плееры</option>
+              ${this.categoriesTemplate}
             </select>
           </div>
           <div class="form-group form-group__half_left form-group__two-col">
@@ -205,9 +219,11 @@ export default class ProductForm {
     if (this.element) {
       this.element.remove();
     }
+    this.removeListeners();
   }
 
   destroy() {
     this.element.remove();
+    this.removeListeners();
   }
 }
