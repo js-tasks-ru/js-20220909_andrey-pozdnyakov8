@@ -1,4 +1,4 @@
-import escapeHtml from "./utils/escape-html.js";
+// import escapeHtml from "./utils/escape-html.js";
 import fetchJson from "./utils/fetch-json.js";
 
 const IMGUR_CLIENT_ID = "28aaa2e823b03b1";
@@ -38,7 +38,6 @@ export default class ProductForm {
       const response = await fetch(fetchURL.toString());
       const data = await response.json();
       this.categories = data;
-      // console.log(this.categories);
 
       return this.categories;
     } catch (error) {
@@ -49,15 +48,12 @@ export default class ProductForm {
   async fetchProductData() {
     const pathNameURL = `${BACKEND_URL}/${PRODUCTS_URL}`;
     const fetchURL = new URL(pathNameURL);
-    // console.log(this.productId);
     fetchURL.searchParams.set("id", this.productId);
 
     try {
       const response = await fetch(fetchURL.toString());
       const data = await response.json();
       this.product = data[0];
-      console.log(this.product);
-      // console.log(this.product.title);
 
       return this.product;
     } catch (error) {
@@ -75,19 +71,27 @@ export default class ProductForm {
   onUploadImageClick = (event) => {
     const uploadButton = event.target.closest('[name="uploadImage"]');
     if (uploadButton) {
-      console.log('upload button click!');
       this.uploadImage();
     }
   };
 
+  onDeleteImageClick = (event) => {
+    const deleteButton = event.target.closest('[name="deleteImage"]');
+    if (deleteButton) {
+      event.target.closest('li').remove();
+    }
+  }
+
   initListeners() {
     document.addEventListener("pointerdown", this.onSaveProductClick);
     document.addEventListener("pointerdown", this.onUploadImageClick);
+    document.addEventListener("pointerdown", this.onDeleteImageClick);
   }
 
   removeListeners() {
     document.removeEventListener("pointerdown", this.onSaveProductClick);
     document.removeEventListener("pointerdown", this.onUploadImageClick);
+    document.removeEventListener("pointerdown", this.onDeleteImageClick);
   }
 
   async save() {
@@ -99,10 +103,8 @@ export default class ProductForm {
     this.product.quantity = parseInt(this.subElements.quantity.value);
     this.product.rating = null;
     this.product.images = this.getImages();
-    console.log(this.product.images);
 
     const productsURL = `${BACKEND_URL}/${PRODUCTS_URL}`;
-    // console.log(this.productId);
 
     try {
       await fetch(productsURL.toString(), {
@@ -176,9 +178,6 @@ export default class ProductForm {
           referrer: "",
         });
 
-        console.log(result.data.link);
-        console.log(file.name);
-
         const newImageWrapper = document.createElement('div');
         const newImageObj = {url: result.data.link, source: file.name};
         newImageWrapper.innerHTML = this.getImageTemplate(newImageObj);
@@ -210,7 +209,7 @@ export default class ProductForm {
           <span>${image.source}</span>
         </span>
         <button type="button">
-          <img src="icon-trash.svg" data-delete-handle="" alt="delete">
+          <img src="icon-trash.svg" name="deleteImage" data-delete-handle="" alt="delete">
         </button>
       </li>
     `;
@@ -287,7 +286,6 @@ export default class ProductForm {
 
       result[name] = subElement;
     }
-    console.log(result);
     return result;
   }
 
