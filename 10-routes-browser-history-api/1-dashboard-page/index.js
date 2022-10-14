@@ -1,24 +1,82 @@
-import RangePicker from './components/range-picker/src/index.js';
-import SortableTable from './components/sortable-table/src/index.js';
-import ColumnChart from './components/column-chart/src/index.js';
-import header from './bestsellers-header.js';
+import RangePicker from "./components/range-picker/src/index.js";
+import SortableTable from "./components/sortable-table/src/index.js";
+import ColumnChart from "./components/column-chart/src/index.js";
+import header from "./bestsellers-header.js";
 
-import fetchJson from './utils/fetch-json.js';
+// import fetchJson from './utils/fetch-json.js';
 
-const BACKEND_URL = 'https://course-js.javascript.ru/';
+const BACKEND_URL = "https://course-js.javascript.ru/";
 
 export default class Page {
   element;
   subElements = {};
 
-  initListeners() {
+  range = {
+    to: new Date(),
+    from: new Date(new Date().setMonth(new Date().getMonth() - 1)),
+  };
 
+  async fetchSortableTableData(
+    from = "from",
+    to = "to",
+    id = "title",
+    order = "asc",
+    start = 1,
+    end = 20
+  ) {
+    const pathNameURL = `${BACKEND_URL}api/dashboard/bestsellers`;
+    const fetchURL = new URL(pathNameURL);
+
+    fetchURL.searchParams.set("from", from.toISOString());
+    fetchURL.searchParams.set("to", to.toISOString());
+    fetchURL.searchParams.set("_sort", id);
+    fetchURL.searchParams.set("_order", order);
+    fetchURL.searchParams.set("_start", start);
+    fetchURL.searchParams.set("_end", end);
+
+    try {
+      const response = await fetch(fetchURL.toString());
+      const data = await response.json();
+
+      this.element.classList.remove("sortable-table_loading");
+
+      return data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  initListeners() {
+    this.element.addEventListener("date-select", this.onDateSelect);
   }
 
   removeListeners() {
-
+    this.element.removeEventListener("date-select", this.onDateSelect);
   }
-  
+
+  onDateSelect = async (event) => {
+    const progressBar = document.querySelector(".progress-bar");
+    progressBar.style.display = "block";
+
+    const { from, to } = event.detail;
+
+    this.getChartsUpdate(from, to);
+    this.getSortableTableUpdate(from, to);
+
+    progressBar.style.display = "none";
+  };
+
+  getChartsUpdate(from, to) {
+    this.ordersChartElement.update(from, to);
+    this.salesChartElement.update(from, to);
+    this.customersChartElement.update(from, to);
+  }
+
+  async getSortableTableUpdate(from, to) {
+    const data = await this.fetchSortableTableData(from, to);
+    this.sortableTableElement.renderRows(data);
+  }
+
   get dashboardPageTemplate() {
     return `
       <div class="dashboard">
@@ -43,16 +101,53 @@ export default class Page {
     `;
   }
 
-  getRangePicker() {
+  async getRangePicker() {
+    const { rangePicker } = this.subElements;
 
+    this.rangePickerElement = new RangePicker(this.range);
+
+    rangePicker.append(this.rangePickerElement.element);
   }
 
-  getSortableTable() {
-    
+  async getSortableTable() {
+    const { sortableTable } = this.subElements;
+    const { from, to } = this.range;
+
+    this.sortableTableElement = new SortableTable(header, {
+      url: "api/dashboard/bestsellers",
+    });
+
+    this.getSortableTableUpdate(from, to);
+
+    sortableTable.append(this.sortableTableElement.element);
   }
 
-  getColumnChart() {
-    
+  async getColumnChart() {
+    const { ordersChart, salesChart, customersChart } = this.subElements;
+
+    this.ordersChartElement = new ColumnChart({
+      url: "api/dashboard/orders",
+      range: this.range,
+      label: "orders",
+      link: "#",
+    });
+
+    this.salesChartElement = new ColumnChart({
+      url: "api/dashboard/sales",
+      range: this.range,
+      label: "sales",
+      formatHeading: (data) => `$${data}`,
+    });
+
+    this.customersChartElement = new ColumnChart({
+      url: "api/dashboard/customers",
+      range: this.range,
+      label: "customers",
+    });
+
+    ordersChart.append(this.ordersChartElement.element);
+    salesChart.append(this.salesChartElement.element);
+    customersChart.append(this.customersChartElement.element);
   }
 
   async render() {
@@ -63,9 +158,12 @@ export default class Page {
     this.subElements = this.getSubElements();
 
     this.initListeners();
+    await this.getColumnChart();
+    await this.getRangePicker();
+    await this.getSortableTable();
 
-    const progressBar = document.querySelector('.progress-bar');
-    progressBar.style.display = 'none';
+    const progressBar = document.querySelector(".progress-bar");
+    progressBar.style.display = "none";
     return this.element;
   }
 
@@ -78,8 +176,7 @@ export default class Page {
 
       result[name] = subElement;
     }
-
-    console.log(result);
+    
     return result;
   }
 
